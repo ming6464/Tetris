@@ -7,10 +7,11 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+    public Sprite GhostTetrominoSprite;
     public bool isGameOver;
     private static GameManager m_ins;
-    private Tetromino nextTetromino;
-    private Vector3 posNextTetromino;
+    private Tetromino m_nextTetromino;
+    private Vector3 m_posNextTetromino;
     public static GameManager Ins
     {
         get
@@ -32,7 +33,7 @@ public class GameManager : MonoBehaviour
     {
         spawnAble = true;
         nextIndexTetromino = Random.Range(0, tetrominos.Length);
-        posNextTetromino = new Vector3(0.5f, 19.5f, 0);
+        m_posNextTetromino = new Vector3(0.5f, 19.5f, 0);
     }
 
     private void Update()
@@ -54,9 +55,9 @@ public class GameManager : MonoBehaviour
 
     private void ShowNextTetromino()
     {
-        if(nextTetromino)Destroy(nextTetromino.gameObject);
-        nextTetromino = Instantiate(tetrominos[nextIndexTetromino],posNextTetromino,Quaternion.identity);
-        nextTetromino.transform.localScale = new Vector3(0.7f, 0.7f, 1);
-        nextTetromino.enabled = false;
+        if(m_nextTetromino)Destroy(m_nextTetromino.gameObject);
+        m_nextTetromino = Instantiate(tetrominos[nextIndexTetromino],m_posNextTetromino,Quaternion.identity);
+        m_nextTetromino.transform.localScale = new Vector3(0.7f, 0.7f, 1);
+        m_nextTetromino.enabled = false;
     }
 }

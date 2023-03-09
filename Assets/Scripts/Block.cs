@@ -6,8 +6,8 @@ public class Block : MonoBehaviour
 {
     public void Death()
     {
-        GetComponent<SpriteRenderer>().enabled = false;
         GetComponent<ParticleSystem>().Play();
-        Destroy(gameObject,0.5f);
+        GetComponent<Animator>().Play("Death");
+        Destroy(gameObject,0.4f);
     }
 }

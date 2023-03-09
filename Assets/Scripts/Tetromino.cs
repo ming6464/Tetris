@@ -1,58 +1,69 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class Tetromino : MonoBehaviour
 {
+    public bool isGhost;
+    private Tetromino ghost;
     [SerializeField] private bool _isShapeO;
     private bool m_isInActive;
+    private Vector3 MOVE_RIGHT = Vector3.right,MOVE_LEFT = Vector3.left,MOVE_DOWN = Vector3.down,MOVE_UP = Vector3.up;
     private float m_timeMove,
         m_timeStartMove,
         m_timeDownMove,
-        m_timeStartDownMove,
-        m_timePauseCleaning,
-        m_timeStartTimePauseCleanning;
+        m_timeStartDownMove;
     private const int ROW = 18, COL = 11;
     private int m_beginRowClean, m_amountRowClean;
     private static Transform[,] m_board = new Transform[ROW, COL];
+    private bool checkLimit;
     void Start()
     {
-        m_timePauseCleaning = 0.2f;
-        m_timeMove = 0.2f;
-        m_timeDownMove = 0.8f;
+        m_timeMove = 0.15f;
+        m_timeMove = 0.15f;
+        m_timeDownMove = 0.7f;
         m_timeStartDownMove = m_timeDownMove;
-        m_timeStartTimePauseCleanning = m_timePauseCleaning;
-    }
-    void Update()
-    {
-        if (m_amountRowClean > 0)
+        if (isGhost)
         {
-            m_timeStartTimePauseCleanning -= Time.deltaTime;
-            if (m_timeStartTimePauseCleanning <= 0)
+            foreach (Transform block in transform)
             {
-                m_amountRowClean--;
-                m_timeStartTimePauseCleanning = m_timePauseCleaning;
-                MoveEmptyRowDown();
+                Sprite sprite = GameManager.Ins.GhostTetrominoSprite;
+                if(sprite) block.gameObject.GetComponent<SpriteRenderer>().sprite = sprite;
             }
 
-            return;
+            Drop();
         }
+        else if(!ghost)
+        {
+            ghost = Instantiate(this, transform.position, quaternion.identity);
+            ghost.isGhost = true;
+        }
+    }//
+    void Update()
+    {
         if (m_isInActive) return;
         Move();
         if (Input.GetKeyDown(KeyCode.UpArrow) && !_isShapeO)
             BlockRotate();
-    }
+    }//
 
     private void LateUpdate()
     {
+        if (isGhost) return;
         if (!m_isInActive && !CheckCanMove())
         {
+            if(ghost) Destroy(ghost.gameObject);
             AddBoard();
             CleanRowFull();
             GameManager.Ins.spawnAble = true;
-            if (m_amountRowClean > 0) m_isInActive = true;
+            if (m_amountRowClean > 0)
+            {
+                m_isInActive = true;
+                StartCoroutine(MoveDownToEmpty());
+            }
             else enabled = false;
         }
     }
@@ -60,72 +71,124 @@ public class Tetromino : MonoBehaviour
     private void Move()
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
-            MoveWithDirect(ValuesConst.MOVE_LEFT);
+            MoveWithDirect(MOVE_LEFT);
         else if (Input.GetKeyDown(KeyCode.RightArrow))
-            MoveWithDirect(ValuesConst.MOVE_RIGHT);
-        else if (Input.GetKey(KeyCode.DownArrow))
+            MoveWithDirect(MOVE_RIGHT);
+        else if (!isGhost && Input.GetKey(KeyCode.DownArrow))
         {
             m_timeStartDownMove = m_timeDownMove;
             m_timeStartMove -= Time.deltaTime;
             if (m_timeStartMove <= 0)
             {
-                MoveWithDirect(ValuesConst.MOVE_DOWN);
+                MoveWithDirect(MOVE_DOWN);
                 m_timeStartMove = m_timeMove;
             }
             
         }
-        if(!Input.GetKey(KeyCode.DownArrow))
+        if(!isGhost && !Input.GetKey(KeyCode.DownArrow))
         {
             m_timeStartDownMove -= Time.deltaTime;
             m_timeStartMove = 0;
             if (m_timeStartDownMove <= 0)
             {
-                MoveWithDirect(ValuesConst.MOVE_DOWN);
+                MoveWithDirect(MOVE_DOWN);
                 m_timeStartDownMove = m_timeDownMove;
             }
         }
             
-    }
+    }//
 
-    public void MoveWithDirect(int state)
+    private void Drop()
     {
-        Vector3 dir = Vector3.zero;
-        switch (state)
+        if (!isGhost) return;
+        int x;
+        int y;
+        bool check = true;
+        while (!checkLimit)
         {
-            case ValuesConst.MOVE_DOWN:
-                dir = Vector3.down;
-                break;
-            case ValuesConst.MOVE_LEFT:
-                dir = Vector3.left;
-                break;
-            case ValuesConst.MOVE_RIGHT:
-                dir = Vector3.right;
-                break;
+            foreach (Transform block in transform)
+            {
+                x = Mathf.RoundToInt(block.position.x);
+                y = Mathf.RoundToInt(block.position.y);
+                if (y <= 0 || x <= 0 || m_board[y-1, x])
+                {
+                    check = false;
+                    break;
+                }
+            }
+
+            if (!check) break;
+            MoveWithDirect(MOVE_DOWN);
         }
+    }//
+    
+    public void MoveWithDirect(Vector3 dir)
+    {
         transform.position += dir;
-        if (!CheckPos()) transform.position -= dir;
-    }
+        if (!CheckPos())
+        {
+            if (isGhost)
+            {
+                if (!checkLimit) MoveWithDirect(MOVE_UP);
+                else transform.position -= dir;
+                return;
+            }
+            transform.position -= dir;
+            
+        }
+        else Drop();
+    }//
 
     private void BlockRotate()
     {
         transform.Rotate(Vector3.forward,90);
-        if(!CheckPos()) transform.Rotate(Vector3.forward,-90);
-    }
+        Drop();
+        if (!CheckPos())
+        {
+            if (isGhost)
+            {
+                MoveWithDirect(MOVE_UP);
+                //if(!checkLimit) transform.Rotate(Vector3.forward,-90);
+                return;
+            }
+            transform.Rotate(Vector3.forward,-90);
+        }
+    }//
 
     private bool CheckPos()
     {
+        checkLimit = false;
         bool check = true;
-        int index = 0;
         foreach (Transform block in transform)
         {
-            index++;
             int x = Mathf.RoundToInt(block.position.x);
             int y = Mathf.RoundToInt(block.position.y);
-            if (x < 0 || x > 10) check = false;
+            if (x < 0 || x > 10 || y < 0 || y > 18)
+            {
+                check = false;
+                checkLimit = true;
+            }
             else if (m_board[y, x]) check = false;
+
+            if (!check) return false;
         }
-        if(index == 0) Destroy(gameObject);
-        return check;
+
+        if (isGhost) return CheckEmptyStraightWay();
+        return true;
+    }//
+
+    private bool CheckEmptyStraightWay()
+    {
+        foreach (Transform block in transform)
+        {
+            int x = Mathf.RoundToInt(block.position.x);
+            int y = Mathf.RoundToInt(block.position.y);
+            for (int i = y + 1; i < ROW; i++)
+            {
+                if (m_board[i, x]) return false;
+            }
+        }
+        return true;
     }
 
     private bool CheckCanMove()
@@ -136,6 +199,7 @@ public class Tetromino : MonoBehaviour
             int y = Mathf.RoundToInt(block.position.y);
             if (y >= ROW - 2 && !CheckPos())
             {
+                if(ghost) Destroy(ghost.gameObject);
                 GameManager.Ins.isGameOver = true;
                 enabled = false;
             }
@@ -185,7 +249,19 @@ public class Tetromino : MonoBehaviour
         }
     }
 
-    private void MoveEmptyRowDown ()
+    private IEnumerator MoveDownToEmpty()
+    {
+        yield return new WaitForSeconds(m_timeMove);
+        if (m_amountRowClean > 0)
+        {
+            MoveDownToEmpty1Row();
+            m_amountRowClean--;
+            StartCoroutine(MoveDownToEmpty());
+        }
+        else enabled = false;
+    }
+
+    private void MoveDownToEmpty1Row ()
     {
         for (int row = m_beginRowClean + 1; row < ROW - 3; row++)
         {
@@ -200,4 +276,5 @@ public class Tetromino : MonoBehaviour
             }
         }
     }
+    
 }

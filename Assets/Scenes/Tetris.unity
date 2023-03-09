@@ -1386,6 +1386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01069d4c335847f089a73019cd66f608, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GhostTetrominoSprite: {fileID: 21300000, guid: 5527d0152ddbb874d873b5f9d9201626, type: 3}
   isGameOver: 0
   spawnAble: 0
   tetrominos:
