@@ -38,9 +38,18 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Theme
+    uniqueID: 1136413249
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: 
+  - name: Block
+    uniqueID: 1947538687
+    locked: 0
+  - name: Theme2
+    uniqueID: 3765441429
+    locked: 0
+  - name: Border
     uniqueID: 3460875569
     locked: 0
