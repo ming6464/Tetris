@@ -7,7 +7,6 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
-    
     public Sprite GhostTetrominoSprite;
     public bool isGameOver;
     private static GameManager m_ins;
