@@ -48,6 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756beb19105d561489846ed5832fe011, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGhost: 0
   _isShapeO: 1
 --- !u!1001 &321756691230014382
 PrefabInstance:
@@ -56,6 +57,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7178226876088798023}
     m_Modifications:
+    - target: {fileID: -5685918598426332728, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
+      propertyPath: type
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1222633154857952295, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.6431373
@@ -146,6 +151,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7178226876088798023}
     m_Modifications:
+    - target: {fileID: -5685918598426332728, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
+      propertyPath: type
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1222633154857952295, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.6431373
@@ -236,6 +245,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7178226876088798023}
     m_Modifications:
+    - target: {fileID: -5685918598426332728, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
+      propertyPath: type
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1222633154857952295, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.6431373
@@ -326,6 +339,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7178226876088798023}
     m_Modifications:
+    - target: {fileID: -5685918598426332728, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
+      propertyPath: type
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 1222633154857952295, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
       value: 0.6431373

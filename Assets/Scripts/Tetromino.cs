@@ -4,13 +4,14 @@ using System.Collections.Generic;
 using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Tetromino : MonoBehaviour
 {
     public bool isGhost;
     private Tetromino ghost;
     [SerializeField] private bool _isShapeO;
-    private bool m_isInActive;
+    private bool m_isInActive,m_checkLimitHorizontal,m_checkLimitVertical;
     private Vector3 MOVE_RIGHT = Vector3.right,MOVE_LEFT = Vector3.left,MOVE_DOWN = Vector3.down,MOVE_UP = Vector3.up;
     private float m_timeMove,
         m_timeStartMove,
@@ -19,12 +20,10 @@ public class Tetromino : MonoBehaviour
     private const int ROW = 18, COL = 11;
     private int m_beginRowClean, m_amountRowClean;
     private static Transform[,] m_board = new Transform[ROW, COL];
-    private bool checkLimit;
     void Start()
     {
-        m_timeMove = 0.15f;
-        m_timeMove = 0.15f;
-        m_timeDownMove = 0.7f;
+        m_timeMove = 0.1f;
+        m_timeDownMove = 1f;
         m_timeStartDownMove = m_timeDownMove;
         if (isGhost)
         {
@@ -71,9 +70,14 @@ public class Tetromino : MonoBehaviour
     private void Move()
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
             MoveWithDirect(MOVE_LEFT);
+        }
         else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
             MoveWithDirect(MOVE_RIGHT);
+            
+        }
         else if (!isGhost && Input.GetKey(KeyCode.DownArrow))
         {
             m_timeStartDownMove = m_timeDownMove;
@@ -83,7 +87,6 @@ public class Tetromino : MonoBehaviour
                 MoveWithDirect(MOVE_DOWN);
                 m_timeStartMove = m_timeMove;
             }
-            
         }
         if(!isGhost && !Input.GetKey(KeyCode.DownArrow))
         {
@@ -95,60 +98,43 @@ public class Tetromino : MonoBehaviour
                 m_timeStartDownMove = m_timeDownMove;
             }
         }
-            
+        Drop();
     }//
 
     private void Drop()
     {
         if (!isGhost) return;
-        int x;
-        int y;
-        bool check = true;
-        while (!checkLimit)
-        {
-            foreach (Transform block in transform)
-            {
-                x = Mathf.RoundToInt(block.position.x);
-                y = Mathf.RoundToInt(block.position.y);
-                if (y <= 0 || x <= 0 || m_board[y-1, x])
-                {
-                    check = false;
-                    break;
-                }
-            }
-
-            if (!check) break;
-            MoveWithDirect(MOVE_DOWN);
-        }
+        while (MoveWithDirect(MOVE_DOWN));
     }//
     
-    public void MoveWithDirect(Vector3 dir)
+    private bool MoveWithDirect(Vector3 dir)
     {
         transform.position += dir;
-        if (!CheckPos())
+        if (!CheckPos()) 
         {
             if (isGhost)
             {
-                if (!checkLimit) MoveWithDirect(MOVE_UP);
-                else transform.position -= dir;
-                return;
+                if (m_checkLimitHorizontal) transform.position -= dir;
+                else MoveWithDirect(MOVE_UP);
+                return false;
+                    
             }
             transform.position -= dir;
-            
+            return false;
         }
-        else Drop();
+        return true;
     }//
 
     private void BlockRotate()
     {
         transform.Rotate(Vector3.forward,90);
-        Drop();
         if (!CheckPos())
         {
             if (isGhost)
             {
-                MoveWithDirect(MOVE_UP);
-                //if(!checkLimit) transform.Rotate(Vector3.forward,-90);
+                if (m_checkLimitHorizontal) transform.Rotate(Vector3.forward, -90);
+                else if(m_checkLimitVertical)  MoveWithDirect(MOVE_UP);
+                Drop();
                 return;
             }
             transform.Rotate(Vector3.forward,-90);
@@ -157,22 +143,27 @@ public class Tetromino : MonoBehaviour
 
     private bool CheckPos()
     {
-        checkLimit = false;
-        bool check = true;
+        m_checkLimitHorizontal = false;
+        m_checkLimitVertical = false;
         foreach (Transform block in transform)
         {
             int x = Mathf.RoundToInt(block.position.x);
             int y = Mathf.RoundToInt(block.position.y);
-            if (x < 0 || x > 10 || y < 0 || y > 18)
+            if (x < 0 || x > 10)
             {
-                check = false;
-                checkLimit = true;
+                m_checkLimitHorizontal = true;
+                return false;
             }
-            else if (m_board[y, x]) check = false;
 
-            if (!check) return false;
+            if (y < 0 || y > 18)
+            {
+                m_checkLimitVertical = true;
+                return false;
+            }
+            if (m_board[y, x]) return false;
         }
 
+        if (m_checkLimitHorizontal || m_checkLimitVertical) return false;
         if (isGhost) return CheckEmptyStraightWay();
         return true;
     }//

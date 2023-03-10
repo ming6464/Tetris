@@ -7,11 +7,13 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
+    
     public Sprite GhostTetrominoSprite;
     public bool isGameOver;
     private static GameManager m_ins;
     private Tetromino m_nextTetromino;
     private Vector3 m_posNextTetromino;
+    [SerializeField] private GameObject blockParticle;
     public static GameManager Ins
     {
         get
@@ -59,5 +61,39 @@ public class GameManager : MonoBehaviour
         m_nextTetromino = Instantiate(tetrominos[nextIndexTetromino],m_posNextTetromino,Quaternion.identity);
         m_nextTetromino.transform.localScale = new Vector3(0.7f, 0.7f, 1);
         m_nextTetromino.enabled = false;
+    }
+
+    public void RunBlockParticle(Vector3 pos, ValuesConst.Type type)
+    {
+        Color color;
+        switch (type)
+        {
+            case ValuesConst.Type.I:
+                color = new Color(0.643f, 0.353f, 0.863f, 1f);
+                break;
+            case ValuesConst.Type.J:
+                color = new Color(0.858f,0.353f,0.859f);
+                break;
+            case ValuesConst.Type.L:
+                color = new Color(0.918f,0.322f,0.478f);
+                break;
+            case ValuesConst.Type.O:
+                color = new Color(0.933f, 0.510f, 0.643f);
+                break;
+            case ValuesConst.Type.S:
+                color = new Color(0.945f, 0.000f, 0.506f);
+                break;
+            case ValuesConst.Type.T:
+                color = new Color(0.784f, 0.055f, 0.600f);
+                break;
+            default:
+                color = new Color(0.444f, 0.310f, 0.871f);
+                break;
+        }
+
+        GameObject newPart = Instantiate(blockParticle, pos, quaternion.identity);
+        ParticleSystem partComp = newPart.GetComponent<ParticleSystem>();
+        partComp.startColor = color;
+        Destroy(newPart,partComp.startLifetime);
     }
 }
