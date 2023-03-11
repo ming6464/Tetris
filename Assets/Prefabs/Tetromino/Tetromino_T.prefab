@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1667305474014549042}
   m_Layer: 0
   m_Name: Tetromino_T
-  m_TagString: Untagged
+  m_TagString: Tetromino
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -48,8 +48,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756beb19105d561489846ed5832fe011, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isGhost: 0
-  _isShapeO: 0
+  _ghostsData:
+  - rotateAngle: 0
+    startPosX: 1
+    startPosY: 19
+    ghostCount: 8
+  - rotateAngle: 90
+    startPosX: 1
+    startPosY: 19
+    ghostCount: 9
+  - rotateAngle: 180
+    startPosX: 1
+    startPosY: 18
+    ghostCount: 8
+  - rotateAngle: 270
+    startPosX: 0
+    startPosY: 19
+    ghostCount: 9
+  _ghost: {fileID: 8601481561766734527, guid: 0ae8dce00676a3f41a76ce2647a25563, type: 3}
+  _type: 5
 --- !u!1001 &3210099764431420584
 PrefabInstance:
   m_ObjectHideFlags: 0

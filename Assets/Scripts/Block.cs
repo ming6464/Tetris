@@ -5,9 +5,7 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    [SerializeField] private ValuesConst.Type type;
-
-    public void Death()
+    public void Death(ValuesConst.Type type)
     {
         GameManager.Ins.RunBlockParticle(transform.position,type);
         GetComponent<Animator>().Play("Death");
