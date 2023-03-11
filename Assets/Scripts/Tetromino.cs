@@ -243,7 +243,7 @@ public class Tetromino : MonoBehaviour
                     m_checkLimitHor = true;
                     return false;
                 }
-                if (y < 18 && (y < 0 || m_board[y, x])) return false;
+                if (y < ValuesConst.ROW && (y < 0 || m_board[y, x])) return false;
             }
             return true;
         }
@@ -264,6 +264,7 @@ public class Tetromino : MonoBehaviour
     {
         transform.Rotate(Vector3.forward * rotateAngle);
         transform.position = pos;
+        transform.localScale = new Vector3(1, 1, 1);
         foreach (List<Transform> listTrans in m_ghostTransList)
         {
             foreach (Transform ghostTrans in listTrans)

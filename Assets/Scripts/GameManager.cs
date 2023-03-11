@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -17,46 +18,67 @@ public class GameManager : MonoBehaviour
     public bool spawnAble;
     public bool isGameOver;
     
-    [SerializeField] private GameObject _blockParticle;
-    [SerializeField] private Tetromino[] _tetrominos;
+    [System.Serializable]
+    private class TetrominoInfo
+    {
+        public GameObject obj;
+        public ValuesConst.Type type;
+    }
     
+    
+    [SerializeField] private GameObject _blockParticle;
+    [SerializeField] private TetrominoInfo[] _tetrominos;
+    [SerializeField] private TetrominoInfo[] _nextOrCurTetrominos;
+
+
+    private readonly Vector3 m_curPosTetromino = new (1.2f, 22.2f, 0f),
+        m_nextPosTetromino0 = new (10.5f, 17.5f, 0f),
+        m_nextPosTetromino1 = new (10.5f, 15f, 0f),
+        m_nextPosTetromino2 = new (10.5f, 12.5f, 0f);
+
+    private readonly float m_scaleCurTetromino = 0.7f, m_scaleNextTetromino = 0.5f;
+
+    private TetrominoInfo[] m_nextAndCurTetromino = new TetrominoInfo[3];
     private static GameManager m_ins;
-    private Tetromino m_nextTetromino;
-    private Vector3 m_posNextTetromino;
-    private int m_nextIndexTetromino;
-    private Tetromino m_curTetromino;
+    private GameObject m_curTetromino;
+
+
     private void Start()
     {
         spawnAble = true;
-        m_nextIndexTetromino = Random.Range(0, _tetrominos.Length);
-        m_posNextTetromino = new Vector3(0.5f, 19.5f, 0);
+        if (_nextOrCurTetrominos.Length > 0)
+        {
+            m_nextAndCurTetromino[0] = GenerateRandomTetrominoInfo(m_nextPosTetromino0,m_scaleNextTetromino);
+            m_nextAndCurTetromino[1] = GenerateRandomTetrominoInfo(m_nextPosTetromino1,m_scaleNextTetromino);
+            m_nextAndCurTetromino[2] = GenerateRandomTetrominoInfo(m_nextPosTetromino2,m_scaleNextTetromino);
+        }
     }
 
     private void Update()
     {
         if (isGameOver) return;
-        if(spawnAble) SpawnBlock();
+        if(spawnAble) SpawnTetromino();
         HandleClick();
     }
 
-    private void SpawnBlock()
+    private void SpawnTetromino()
     {
         if (_tetrominos.Length > 0)
         {
-            _tetrominos[m_nextIndexTetromino].isNextTetromino = false;
-            m_curTetromino = Instantiate(_tetrominos[m_nextIndexTetromino], new Vector3(5,16,0),Quaternion.identity);
-            m_nextIndexTetromino = Random.Range(0, _tetrominos.Length);
+            GameObject curObj = _tetrominos.FirstOrDefault(x => x.type == m_nextAndCurTetromino[0].type)!.obj;
+            m_curTetromino = CloneObject(curObj, m_curPosTetromino);
+            m_curTetromino.transform.localScale = new Vector3(m_scaleCurTetromino,m_scaleCurTetromino,0);
+            Destroy(m_nextAndCurTetromino[0]!.obj);
+            m_nextAndCurTetromino[0] = m_nextAndCurTetromino[1];
+            m_nextAndCurTetromino[1] = m_nextAndCurTetromino[2];
+            m_nextAndCurTetromino[2] = GenerateRandomTetrominoInfo(m_nextPosTetromino2,m_scaleNextTetromino);
+            //cập nhật lại vị trí các phần tử
+            m_nextAndCurTetromino[0].obj.transform.position = m_nextPosTetromino0;
+            m_nextAndCurTetromino[1].obj.transform.position = m_nextPosTetromino1;
+            m_nextAndCurTetromino[2].obj.transform.position = m_nextPosTetromino2;
+            
             spawnAble = false;
-            ShowNextTetromino();
         }
-    }
-    private void ShowNextTetromino()
-    {
-        if(m_nextTetromino)Destroy(m_nextTetromino.gameObject);
-        _tetrominos[m_nextIndexTetromino].isNextTetromino = true;
-        m_nextTetromino = Instantiate(_tetrominos[m_nextIndexTetromino],m_posNextTetromino,Quaternion.identity);
-        m_nextTetromino.transform.localScale = new Vector3(0.7f, 0.7f, 1);
-        m_nextTetromino.enabled = false;
     }
     public void RunBlockParticle(Vector3 pos, ValuesConst.Type type)
     {
@@ -91,13 +113,6 @@ public class GameManager : MonoBehaviour
         partComp.startColor = color;
         Destroy(newPart,partComp.startLifetime);
     }
-    public void TetrominoGhostOnClick(Transform ghost)
-    {
-        if (m_curTetromino)
-        {
-            m_curTetromino.OnClickGhost(ghost.position,ghost.rotation.eulerAngles.z);
-        }
-    }
 
     public void HandleClick()
     {
@@ -107,9 +122,25 @@ public class GameManager : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
             if (hit && hit.collider.gameObject.CompareTag("Tetromino Block"))
             {
-                TetrominoGhostOnClick(hit.collider.gameObject.transform);
+                Transform ghost = hit.collider.gameObject.transform;
+                m_curTetromino.GetComponent<Tetromino>()!.OnClickGhost(ghost.position,ghost.rotation.eulerAngles.z);
             }
         }
         
+    }
+    
+    private GameObject CloneObject(GameObject obj, Vector3 pos)
+    {
+        return Instantiate(obj, pos, Quaternion.identity);
+    }
+
+    private TetrominoInfo GenerateRandomTetrominoInfo(Vector3 pos,float scale)
+    {
+        var count =  Random.Range(0, _nextOrCurTetrominos.Length);
+        TetrominoInfo tetInfo = new TetrominoInfo();
+        tetInfo.type = _nextOrCurTetrominos[count].type;
+        tetInfo.obj = CloneObject(_nextOrCurTetrominos[count].obj, pos);
+        tetInfo.obj.transform.localScale = new Vector3(scale, scale, 0);
+        return tetInfo;
     }
 }
