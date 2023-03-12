@@ -22,7 +22,7 @@ public class Tetromino : MonoBehaviour
     private static Transform[,] m_board = new Transform[ValuesConst.ROW, ValuesConst.COL];
     private Transform[,] m_boardFake = new Transform[ValuesConst.ROW, ValuesConst.COL];
     private float m_timeMove;
-    private bool m_isSpawnGhostCall, m_checkLimitHor, m_checkLimitVer;
+    private bool m_isSpawnGhostCall, m_checkLimitHor, m_checkLimitVer,m_isStartAnim;
     void Start()
     {
         m_ghostTop1Trans = new List<Transform>();
@@ -123,6 +123,7 @@ public class Tetromino : MonoBehaviour
 
     private void CleanRow(int row)
     {
+        AudioManager.Ins.PlayAudio(ValuesConst.AUDIO_COLLECT);
         for (int i = 0; i < ValuesConst.COL; i++)
         {
             m_board[row, i].gameObject.GetComponent<Block>().Death(_type);
@@ -448,7 +449,8 @@ public class Tetromino : MonoBehaviour
                 Destroy(ghostTrans.gameObject);
             }
         }
-        UpdateBoard();
+        GetComponent<Animator>().Play("Teleport");
+        m_isStartAnim = true;
     }
     
     // cập nhật lại board
@@ -457,7 +459,7 @@ public class Tetromino : MonoBehaviour
         if (AddBoard())
         {
             CleanAllFilledRow();
-            GameManager.Ins.IncreaseScore(m_amountRowClean);
+            UIManager.Ins.Show_scoreToast(m_amountRowClean);
             StartCoroutine(DropBlocks(0.2f));
             return;
         }
@@ -467,6 +469,7 @@ public class Tetromino : MonoBehaviour
 
     public void TimeOut()
     {
+        if (m_isStartAnim) return;
         var trans = m_ghostTransList[0][0];
         foreach (var translist in m_ghostTransList)
         {

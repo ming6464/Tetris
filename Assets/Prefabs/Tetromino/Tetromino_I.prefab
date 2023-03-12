@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7870625174169436767}
   - component: {fileID: 3111915433124197068}
+  - component: {fileID: 937353223855696691}
   m_Layer: 0
   m_Name: Tetromino_I
   m_TagString: Tetromino
@@ -48,7 +49,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756beb19105d561489846ed5832fe011, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isNextTetromino: 0
   _ghostsData:
   - rotateAngle: 90
     startPosX: 1
@@ -56,6 +56,26 @@ MonoBehaviour:
     startPosX: 0
   _ghost: {fileID: 1421583182417903654, guid: 55c6733b1c75c8b43bb8444d123f15c1, type: 3}
   _type: 0
+--- !u!95 &937353223855696691
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3839983694966068893}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 35b0767c26bc4d54a80373aa8e305470, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &375871176917480700
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -65,7 +85,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (3)
+      value: Block_3
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -189,7 +209,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (1)
+      value: Block_1
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -251,7 +271,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (2)
+      value: Block_2
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder

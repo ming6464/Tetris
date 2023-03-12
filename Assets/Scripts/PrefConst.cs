@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PrefConst : MonoBehaviour
 {
-    public static PrefConst Ins
+    public static PrefConst Ins 
     {
         get
         {

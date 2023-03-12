@@ -8,7 +8,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _resumBtn;
     [SerializeField] private GameObject _dialog;
     [SerializeField] private Slider _musícSlider, _sfxSlider,_timeSlider;
-    [SerializeField] private TextMeshProUGUI _dialogTitle;
+    [SerializeField] private TextMeshProUGUI _dialogTitle,_textMulti,_textScoreToast;
+    [SerializeField] private GameObject _toast;
+
+    private float timeLifeToast;
     public static UIManager Ins
     {
         get
@@ -113,5 +116,16 @@ public class UIManager : MonoBehaviour
     {
         timeLeft = _timeSlider.maxValue;
         isRunTime = true;
+    }
+    
+    public void Show_scoreToast(int multi)
+    {
+        if (!_toast || multi <= 0) return;
+
+        int score = multi * multi * ValuesConst.SCOREROW;
+        _textMulti.text = "X " +  multi;
+        _textScoreToast.text = score + " Score";
+        _toast.GetComponent<Animator>().SetTrigger("isActive");
+        GameManager.Ins.IncreaseScore(score);
     }
 }

@@ -13,7 +13,8 @@ public static class ValuesConst
         AUDIO_GAMEOVER = "Game Over",
         AUDIO_MUSIC = "Music",
         AUDIO_DROP = "Drop",
-        AUDIO_ROTATE = "Rotate";
+        AUDIO_ROTATE = "Rotate",
+        AUDIO_COLLECT = "Collect";
 
     public const string MUSIC_VOL = "Music Vol", SFX_VOL = "Sfx Vol";
 }

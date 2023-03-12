@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4211721860359477254}
   - component: {fileID: 2341162442685027213}
+  - component: {fileID: 1002059192586069137}
   m_Layer: 0
   m_Name: Tetromino_Z
   m_TagString: Tetromino
@@ -51,14 +52,30 @@ MonoBehaviour:
   _ghostsData:
   - rotateAngle: 0
     startPosX: 1
-    startPosY: 18
-    ghostCount: 8
   - rotateAngle: 90
     startPosX: 1
-    startPosY: 19
-    ghostCount: 9
   _ghost: {fileID: 6887377936364277676, guid: ad7a4228b04bed645b67435d9b677b6d, type: 3}
   _type: 6
+--- !u!95 &1002059192586069137
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2318514583454825822}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 35b0767c26bc4d54a80373aa8e305470, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &1124811372635923813
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -84,7 +101,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (8)
+      value: Block_3
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -178,7 +195,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (5)
+      value: Block
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -272,7 +289,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (6)
+      value: Block_1
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -366,7 +383,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (7)
+      value: Block_2
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder

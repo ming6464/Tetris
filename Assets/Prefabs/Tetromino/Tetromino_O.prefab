@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7178226876088798023}
   - component: {fileID: 3850960817760855118}
+  - component: {fileID: 495712303016892742}
   m_Layer: 0
   m_Name: Tetromino_O
   m_TagString: Tetromino
@@ -51,10 +52,28 @@ MonoBehaviour:
   _ghostsData:
   - rotateAngle: 0
     startPosX: 1
-    startPosY: 19
-    ghostCount: 9
   _ghost: {fileID: 1089394881639881644, guid: d57fad153cde59c47870d309cb2696d4, type: 3}
   _type: 3
+--- !u!95 &495712303016892742
+Animator:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4318495168879402885}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 35b0767c26bc4d54a80373aa8e305470, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1001 &321756691230014382
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -80,7 +99,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (2)
+      value: Block
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -174,7 +193,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (5)
+      value: Block_3
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -268,7 +287,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (3)
+      value: Block_1
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder
@@ -362,7 +381,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3186546450573912683, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_Name
-      value: Block (4)
+      value: Block_2
       objectReference: {fileID: 0}
     - target: {fileID: 6178683840345443857, guid: d083fe880d8984d4e8969e40c006c994, type: 3}
       propertyPath: m_RootOrder

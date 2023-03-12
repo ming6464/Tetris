@@ -1,6 +1,7 @@
 using System.Linq;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
@@ -165,9 +166,9 @@ public class GameManager : MonoBehaviour
         return tetInfo;
     }
 
-    public void IncreaseScore(int row)
+    public void IncreaseScore(int score)
     {
-        m_score += row * ValuesConst.SCOREROW;
+        m_score += score;
         UIManager.Ins.SetScoreText(m_score);
     }
 
@@ -182,4 +183,6 @@ public class GameManager : MonoBehaviour
         if (!m_curTetromino) return;
         m_curTetromino.GetComponent<Tetromino>().TimeOut();
     }
+
+    
 }
