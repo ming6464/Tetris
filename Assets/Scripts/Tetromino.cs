@@ -15,7 +15,7 @@ public class Tetromino : MonoBehaviour
     [Header("Ghost Data")]
     [SerializeField] private GhostData[] _ghostsData;
     [SerializeField] private GameObject _ghost;
-    private List<Transform> m_ghostStartTrans,m_ghostPriorityTrans;
+    private List<Transform> m_ghostTop1Trans,m_ghostTop2Trans,m_ghostTop3Trans;
     private List<List<Transform>> m_ghostTransList;
     [SerializeField] private ValuesConst.Type _type;
     private int m_beginRowClean, m_amountRowClean,m_countShow = -1;
@@ -25,8 +25,9 @@ public class Tetromino : MonoBehaviour
     private bool m_isSpawnGhostCall, m_checkLimitHor, m_checkLimitVer;
     void Start()
     {
-        m_ghostPriorityTrans = new List<Transform>();
-        m_ghostStartTrans = new List<Transform>();
+        m_ghostTop1Trans = new List<Transform>();
+        m_ghostTop2Trans = new List<Transform>();
+        m_ghostTop3Trans = new List<Transform>();
         m_ghostTransList = new List<List<Transform>>();
         m_timeMove = 0.1f;
         m_isSpawnGhostCall = false;
@@ -132,7 +133,7 @@ public class Tetromino : MonoBehaviour
     //tạo các bản sao Ghost
     private void SpawnGhost()
     {
-        // tạo bản sao ghost và thêm vào m_ghostStartTrans
+        // tạo bản sao ghost và thêm vào m_ghostTop3Trans
         foreach (var ghostData in _ghostsData)
         {
             int x = ghostData.startPosX;
@@ -155,35 +156,40 @@ public class Tetromino : MonoBehaviour
                 obj.transform.position = trans.position;
                 obj.SetActive(false);
                 x++;
-                if (CheckPriorityTrans(obj.transform))
+                if (IsTop1Trans(obj.transform))
                 {
-                    m_ghostPriorityTrans.Add(obj.transform);
+                    m_ghostTop1Trans.Add(obj.transform);
                     continue;
                 }
-                m_ghostStartTrans.Add(obj.transform);
+
+                if (IsTop2Trans(obj.transform))
+                {
+                    m_ghostTop2Trans.Add(obj.transform);
+                    continue;
+                }
+                m_ghostTop3Trans.Add(obj.transform);
             }
         }
 
-        // trộn mảng và ẩn các phần tử của m_ghostStartTrans
-        var count = m_ghostStartTrans.Count;
+        // trộn mảng và ẩn các phần tử của m_ghostTop3Trans
+        var count = m_ghostTop3Trans.Count;
         while (count > 1)
         {
             count--;
             var k = Random.Range(0, count);
-            (m_ghostStartTrans[k], m_ghostStartTrans[count]) = (m_ghostStartTrans[count], m_ghostStartTrans[k]);
+            (m_ghostTop3Trans[k], m_ghostTop3Trans[count]) = (m_ghostTop3Trans[count], m_ghostTop3Trans[k]);
         }
         
         
-        //chuyển các phần tử của mảng m_ghostStartTrans và m_ghostTransList
-        List<Transform> ghostTransDelete;
-        while (m_ghostPriorityTrans.Count > 0)
+        //chuyển các phần tử của mảng m_ghostTop3Trans và m_ghostTransList
+
+        while (m_ghostTop1Trans.Count > 0)
         {
             var ghostTrans = new List<Transform>();
-            ghostTransDelete = new List<Transform>();
-            var index = m_ghostPriorityTrans.Count - 1;
-            ghostTrans.Add(m_ghostPriorityTrans[index]);
-            m_ghostPriorityTrans.RemoveAt(index);
-            foreach (var trans in m_ghostPriorityTrans)
+            var ghostTransDelete = new List<Transform>();
+            ghostTrans.Add(m_ghostTop1Trans[0]);
+            m_ghostTop1Trans.RemoveAt(0);
+            foreach (var trans in m_ghostTop1Trans)
             {
                 if (ghostTrans.TrueForAll(trans2 => !IsGhostAdjacent(trans, trans2)))
                 {
@@ -191,27 +197,89 @@ public class Tetromino : MonoBehaviour
                     ghostTransDelete.Add(trans);
                 }
             }
-            m_ghostPriorityTrans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            m_ghostTop1Trans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            if (ghostTrans.Count > 2)
+            {
+                m_ghostTransList.Add(ghostTrans);
+                continue;
+            }
+            
             ghostTransDelete = new List<Transform>();
-            foreach (var trans in m_ghostStartTrans)
+            
+            //
+            foreach (var trans in m_ghostTop2Trans)
             {
                 if (ghostTrans.TrueForAll(trans2 => !IsGhostAdjacent(trans, trans2)))
+                {
+                    ghostTrans.Add(trans);
+                    ghostTransDelete.Add(trans);
+                }
+            }
+            m_ghostTop2Trans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            if (ghostTrans.Count > 2)
+            {
+                m_ghostTransList.Add(ghostTrans);
+                continue;
+            }
+            
+            //
+            ghostTransDelete = new List<Transform>();
+            foreach (var trans in m_ghostTop3Trans)
+            {
+                if (ghostTrans.TrueForAll(trans3 => !IsGhostAdjacent(trans, trans3)))
                 {
                     ghostTrans.Add(trans);
                     ghostTransDelete.Add(trans);
                 }
             }
             m_ghostTransList.Add(ghostTrans);
-            m_ghostStartTrans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            m_ghostTop3Trans.RemoveAll(trans => ghostTransDelete.Contains(trans));
         }
-        while (m_ghostStartTrans.Count > 0)
+
+        while (m_ghostTop2Trans.Count > 0)
         {
             var ghostTrans = new List<Transform>();
+            var ghostTransDelete = new List<Transform>();
+            ghostTrans.Add(m_ghostTop2Trans[0]);
+            m_ghostTop2Trans.RemoveAt(0);
+            foreach (var trans in m_ghostTop2Trans)
+            {
+                if (ghostTrans.TrueForAll(trans2 => !IsGhostAdjacent(trans, trans2)))
+                {
+                    ghostTrans.Add(trans);
+                    ghostTransDelete.Add(trans);
+                }
+            }
+            
+            m_ghostTop2Trans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            if (ghostTrans.Count > 2)
+            {
+                m_ghostTransList.Add(ghostTrans);
+                continue;
+            }
+
             ghostTransDelete = new List<Transform>();
-            var index = m_ghostStartTrans.Count - 1;
-            ghostTrans.Add(m_ghostStartTrans[index]);
-            m_ghostStartTrans.RemoveAt(index);
-            foreach (var trans in m_ghostStartTrans)
+            
+            foreach (var trans in m_ghostTop3Trans)
+            {
+                if (ghostTrans.TrueForAll(trans2 => !IsGhostAdjacent(trans, trans2)))
+                {
+                    ghostTrans.Add(trans);
+                    ghostTransDelete.Add(trans);
+                }
+            }
+            m_ghostTop3Trans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            m_ghostTransList.Add(ghostTrans);
+        }
+        
+        while (m_ghostTop3Trans.Count > 0)
+        {
+            var ghostTrans = new List<Transform>();
+            var ghostTransDelete = new List<Transform>();
+            var index = m_ghostTop3Trans.Count - 1;
+            ghostTrans.Add(m_ghostTop3Trans[index]);
+            m_ghostTop3Trans.RemoveAt(index);
+            foreach (var trans in m_ghostTop3Trans)
             {
                 var check = ghostTrans.All(trans2 => !IsGhostAdjacent(trans, trans2));
 
@@ -222,11 +290,11 @@ public class Tetromino : MonoBehaviour
                 }
             }
             m_ghostTransList.Add(ghostTrans);
-            m_ghostStartTrans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            m_ghostTop3Trans.RemoveAll(trans => ghostTransDelete.Contains(trans));
         }
     }
 
-    private bool CheckPriorityTrans(Transform trans)
+    private bool IsTop1Trans(Transform trans)
     {
         var checkFilled = false;
         foreach (Transform block in trans)
@@ -259,6 +327,32 @@ public class Tetromino : MonoBehaviour
         }
         
         return checkFilled;
+    }
+
+    private bool IsTop2Trans(Transform trans)
+    {
+        bool check = false;
+        var th2 = 0;
+        foreach (Transform block in trans)
+        {
+            var x = Mathf.RoundToInt(block.position.x);
+            var y = Mathf.RoundToInt(block.position.y);
+            var checkAmount = 0;
+            if (OfRangeHor(x- 1) && m_board[y, x - 1]) checkAmount++;
+            if (OfRangeHor(x + 1) && m_board[y, x + 1]) checkAmount++;
+            if (y - 1 >= 0 && m_board[y - 1, x]) checkAmount++;
+            if (checkAmount > 0 && (x is 0 or ValuesConst.COL - 1 || y == 0)) checkAmount++;
+            if (checkAmount > 1) return true;
+            if (checkAmount == 1) th2++;
+            if (th2 > 1) return true;
+        }
+
+        return false;
+    }
+
+    private bool OfRangeHor(float x)
+    {
+        return x >= 0 && x < ValuesConst.COL;
     }
     
     // Kiểm tra 2 tranform có sát nhau không
@@ -321,7 +415,7 @@ public class Tetromino : MonoBehaviour
             {
                 int x = Mathf.RoundToInt(block.position.x);
                 int y = Mathf.RoundToInt(block.position.y);
-                if (x >= ValuesConst.COL)
+                if (!OfRangeHor(x))
                 {
                     m_checkLimitHor = true;
                     return false;
