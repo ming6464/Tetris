@@ -91,6 +91,7 @@ public class GameManager : MonoBehaviour
         //Nhân bản tetromino
         GameObject curObj = _tetrominos.FirstOrDefault(x => x.type == m_nextAndCurTetromino[0].type)!.obj;
         m_curTetromino = CloneObject(curObj, m_curPostTetrominoRead);
+        UIManager.Ins.RunTime();
         spawnAble = false;
     }
     public void RunBlockParticle(Vector3 pos, ValuesConst.Type type)
@@ -174,5 +175,11 @@ public class GameManager : MonoBehaviour
     {
         UIManager.Ins.GameOver();
         m_isGameOver = true;
+    }
+
+    public void TimeOut()
+    {
+        if (!m_curTetromino) return;
+        m_curTetromino.GetComponent<Tetromino>().TimeOut();
     }
 }

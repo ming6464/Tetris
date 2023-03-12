@@ -7,7 +7,7 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameObject _resumBtn;
     [SerializeField] private GameObject _dialog;
-    [SerializeField] private Slider _musícSlider, _sfxSlider;
+    [SerializeField] private Slider _musícSlider, _sfxSlider,_timeSlider;
     [SerializeField] private TextMeshProUGUI _dialogTitle;
     public static UIManager Ins
     {
@@ -23,11 +23,12 @@ public class UIManager : MonoBehaviour
     
     private static UIManager m_ins;
     private bool m_isSetUpVol;
-    
-
+    private float timeLeft;
+    private bool isRunTime;
     private void Start()
     {
         m_isSetUpVol = false;
+        if (_timeSlider) timeLeft = _timeSlider.maxValue;
     }
 
     private void Update()
@@ -46,6 +47,20 @@ public class UIManager : MonoBehaviour
             if (_sfxSlider) _sfxSlider.value = sfxVol;
             m_isSetUpVol = true;
         }
+
+        if (isRunTime)
+        {
+            timeLeft -= Time.deltaTime;
+            if (timeLeft <= 0)
+            {
+                timeLeft = 0f;
+                isRunTime = false;
+                GameManager.Ins.TimeOut();
+            }
+            _timeSlider.value = timeLeft;
+        }
+        
+        
     }
 
     public void SetScoreText(int score)
@@ -92,5 +107,11 @@ public class UIManager : MonoBehaviour
         _resumBtn.SetActive(false);
         PauseGame();
         if (_dialogTitle) _dialogTitle.text = "Game Over";
+    }
+
+    public void RunTime()
+    {
+        timeLeft = _timeSlider.maxValue;
+        isRunTime = true;
     }
 }

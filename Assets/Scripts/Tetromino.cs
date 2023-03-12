@@ -370,6 +370,21 @@ public class Tetromino : MonoBehaviour
         GameManager.Ins.GameOver();
         enabled = false;
     }
-    
+
+    public void TimeOut()
+    {
+        var trans = m_ghostTransList[0][0];
+        foreach (var translist in m_ghostTransList)
+        {
+            if (translist[0].gameObject.activeSelf)
+            {
+                int index = Random.Range(0,translist.Count);
+                trans = translist[index];
+                break;
+            }
+        }
+        AudioManager.Ins.PlayAudio(ValuesConst.AUDIO_DROP);
+        OnClickGhost(trans.position,trans.rotation.eulerAngles.z);
+    }
 }                                                              
                                                                
