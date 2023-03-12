@@ -7,7 +7,6 @@ using Random = UnityEngine.Random;
 
 public class Tetromino : MonoBehaviour
 {
-    public bool isNextTetromino;
     [System.Serializable] public class GhostData
     {
         public float rotateAngle;
@@ -16,103 +15,119 @@ public class Tetromino : MonoBehaviour
     [Header("Ghost Data")]
     [SerializeField] private GhostData[] _ghostsData;
     [SerializeField] private GameObject _ghost;
-    private List<Transform> m_ghostStartTrans;
+    private List<Transform> m_ghostStartTrans,m_ghostPriorityTrans;
     private List<List<Transform>> m_ghostTransList;
     [SerializeField] private ValuesConst.Type _type;
     private int m_beginRowClean, m_amountRowClean,m_countShow = -1;
     private static Transform[,] m_board = new Transform[ValuesConst.ROW, ValuesConst.COL];
+    private Transform[,] m_boardFake = new Transform[ValuesConst.ROW, ValuesConst.COL];
     private float m_timeMove;
-    private bool m_isSpawnGhostCall,m_checkLimitHor,m_checkLimitVer,m_checkGameOver;
+    private bool m_isSpawnGhostCall, m_checkLimitHor, m_checkLimitVer;
     void Start()
     {
+        m_ghostPriorityTrans = new List<Transform>();
         m_ghostStartTrans = new List<Transform>();
         m_ghostTransList = new List<List<Transform>>();
         m_timeMove = 0.1f;
         m_isSpawnGhostCall = false;
+        m_boardFake = m_board;
     }
     void Update()
     {
-        if (isNextTetromino) return;
         if (!m_isSpawnGhostCall)
         {
             m_isSpawnGhostCall = true;
             SpawnGhost();
             ShowGhost();
         }
-        if(m_isSpawnGhostCall && Input.GetKeyDown(KeyCode.UpArrow))
-            ShowGhost();
     }
     
     //Thêm các block vào mảng
-    private void AddBoard()
+    private bool AddBoard()
     {
         foreach (Transform child in transform)
         {
-            var y = Mathf.RoundToInt(child.position.y);
-            m_board[y, Mathf.RoundToInt(child.position.x)] = child;
-            if (y == ValuesConst.ROW - 1) m_checkGameOver = true;
+            var position = child.position;
+            var y = Mathf.RoundToInt(position.y);
+            m_board[y, Mathf.RoundToInt(position.x)] = child;
+            if (y == ValuesConst.ROW - 1) return false;
         }
+
+        return true;
     }
     
     //Xoá các dòng đầy
-    private void ClearFilledRows()
+    private void CleanAllFilledRow()
     {
         m_amountRowClean = 0;
         for (var row = 0; row < ValuesConst.ROW; row++)
         {
-            var checkEmpty = true;
-            var checkFull = true;
-            for (var col = 0; col < ValuesConst.COL; col++)
-            {
-                if (!m_board[row, col])
-                {
-                    checkFull = false;
-                    continue;
-                }
-                checkEmpty = false;
-                if (!checkFull) break;
-            }
-            if (checkEmpty) break;
-            if (!checkFull) continue;
-            for (var col = 0; col < ValuesConst.COL; col++)
-            {
-                if (m_board == null) continue;
-                m_board[row, col].gameObject.GetComponent<Block>().Death(_type);
-                m_board[row, col] = null;
-            }
-            if(m_amountRowClean == 0)
+            if (IsEmptyRow(row)) break;
+            if (!IsFilledRow(row)) continue;
+            CleanRow(row);
+            if (m_amountRowClean == 0)
                 m_beginRowClean = row;
             m_amountRowClean++;
         }
     }
-    
+
     //Di chuyển các dòng xuống 1 dòng khi dòng dưới trống
-    private IEnumerator DropBlocks(float time)
+    private IEnumerator DropBlocks(float time, bool check = true)
     {
         yield return new WaitForSeconds(time);
+        
         if (m_amountRowClean > 0)
         {
+            m_amountRowClean--;
             for (int row = m_beginRowClean + 1; row < ValuesConst.ROW; row++)
             {
                 for (int col = 0; col < ValuesConst.COL; col++)
                 {
-                    if (m_board[row, col])
+                    Transform trans = m_board[row, col];
+                    if (trans)
                     {
-                        m_board[row, col].transform.position += Vector3.down;
-                        m_board[row - 1, col] = m_board[row, col];
+                        trans.position += Vector3.down;
+                        m_board[row - 1, col] = trans;
                         m_board[row, col] = null;
                     }
                 }
+                
             }
-            m_amountRowClean--;
             StartCoroutine(DropBlocks(m_timeMove));
-        }
-        else
+        }else if (check)
         {
             GameManager.Ins.spawnAble = true;
-            enabled = false;
         }
     }
+
+    private bool IsEmptyRow(int row)
+    {
+        for (int i = 0; i < ValuesConst.COL; i++)
+        {
+            if (m_board[row, i]) return false;
+        }
+
+        return true;
+    }
+
+    private bool IsFilledRow(int row)
+    {
+        for (int i = 0; i < ValuesConst.COL; i++)
+        {
+            if (!m_board[row, i]) return false;
+        }
+
+        return true;
+    }
+
+    private void CleanRow(int row)
+    {
+        for (int i = 0; i < ValuesConst.COL; i++)
+        {
+            m_board[row, i].gameObject.GetComponent<Block>().Death(_type);
+            m_board[row, i] = null;
+        } 
+    } 
     
     //tạo các bản sao Ghost
     private void SpawnGhost()
@@ -138,8 +153,14 @@ public class Tetromino : MonoBehaviour
                     }
                 }
                 obj.transform.position = trans.position;
-                m_ghostStartTrans.Add(obj.transform);
+                obj.SetActive(false);
                 x++;
+                if (CheckPriorityTrans(obj.transform))
+                {
+                    m_ghostPriorityTrans.Add(obj.transform);
+                    continue;
+                }
+                m_ghostStartTrans.Add(obj.transform);
             }
         }
 
@@ -150,12 +171,39 @@ public class Tetromino : MonoBehaviour
             count--;
             var k = Random.Range(0, count);
             (m_ghostStartTrans[k], m_ghostStartTrans[count]) = (m_ghostStartTrans[count], m_ghostStartTrans[k]);
-            m_ghostStartTrans[count].gameObject.SetActive(false);
         }
-        m_ghostStartTrans[0].gameObject.SetActive(false);
+        
         
         //chuyển các phần tử của mảng m_ghostStartTrans và m_ghostTransList
         List<Transform> ghostTransDelete;
+        while (m_ghostPriorityTrans.Count > 0)
+        {
+            var ghostTrans = new List<Transform>();
+            ghostTransDelete = new List<Transform>();
+            var index = m_ghostPriorityTrans.Count - 1;
+            ghostTrans.Add(m_ghostPriorityTrans[index]);
+            m_ghostPriorityTrans.RemoveAt(index);
+            foreach (var trans in m_ghostPriorityTrans)
+            {
+                if (ghostTrans.TrueForAll(trans2 => !IsGhostAdjacent(trans, trans2)))
+                {
+                    ghostTrans.Add(trans);
+                    ghostTransDelete.Add(trans);
+                }
+            }
+            m_ghostPriorityTrans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+            ghostTransDelete = new List<Transform>();
+            foreach (var trans in m_ghostStartTrans)
+            {
+                if (ghostTrans.TrueForAll(trans2 => !IsGhostAdjacent(trans, trans2)))
+                {
+                    ghostTrans.Add(trans);
+                    ghostTransDelete.Add(trans);
+                }
+            }
+            m_ghostTransList.Add(ghostTrans);
+            m_ghostStartTrans.RemoveAll(trans => ghostTransDelete.Contains(trans));
+        }
         while (m_ghostStartTrans.Count > 0)
         {
             var ghostTrans = new List<Transform>();
@@ -177,6 +225,41 @@ public class Tetromino : MonoBehaviour
             m_ghostStartTrans.RemoveAll(trans => ghostTransDelete.Contains(trans));
         }
     }
+
+    private bool CheckPriorityTrans(Transform trans)
+    {
+        var checkFilled = false;
+        foreach (Transform block in trans)
+        {
+            m_boardFake[Mathf.RoundToInt(block.position.y), Mathf.RoundToInt(block.position.x)] = transform;
+        }
+        for (int row = 0; row < ValuesConst.ROW; row++)
+        {
+            checkFilled = true;
+            for (int col = 0; col < ValuesConst.COL; col++)
+            {
+                if (!m_boardFake[row, col])
+                {
+                    checkFilled = false;
+                    break;
+                }
+            }
+
+            if (checkFilled) break;
+        }
+        for (int row = 0; row < ValuesConst.ROW; row++)
+        {
+            for (int col = 0; col < ValuesConst.COL; col++)
+            {
+                if (m_boardFake[row, col] && m_boardFake[row, col].Equals(transform))
+                {
+                    m_boardFake[row, col] = null;
+                }
+            }
+        }
+        
+        return checkFilled;
+    }
     
     // Kiểm tra 2 tranform có sát nhau không
     private bool IsGhostAdjacent(Transform trans1, Transform trans2)
@@ -193,9 +276,9 @@ public class Tetromino : MonoBehaviour
     }
     
     //Hiển thị Ghost
-    private void ShowGhost()
+    public void ShowGhost()
     {
-        if (m_ghostTransList.Count <= 0) return;
+        if (!m_isSpawnGhostCall || m_ghostTransList.Count <= 0) return;
         if (m_countShow != -1)
         {
             foreach (var ghostTrans in m_ghostTransList[m_countShow])
@@ -264,7 +347,6 @@ public class Tetromino : MonoBehaviour
     {
         transform.Rotate(Vector3.forward * rotateAngle);
         transform.position = pos;
-        transform.localScale = new Vector3(1, 1, 1);
         foreach (List<Transform> listTrans in m_ghostTransList)
         {
             foreach (Transform ghostTrans in listTrans)
@@ -272,23 +354,22 @@ public class Tetromino : MonoBehaviour
                 Destroy(ghostTrans.gameObject);
             }
         }
-
         UpdateBoard();
     }
     
     // cập nhật lại board
     private void UpdateBoard()
     {
-        AddBoard();
-        ClearFilledRows();
-        if (m_amountRowClean == 0)
+        if (AddBoard())
         {
-            if (m_checkGameOver) GameManager.Ins.isGameOver = true;
-            else GameManager.Ins.spawnAble = true;
-            enabled = false;
+            CleanAllFilledRow();
+            GameManager.Ins.IncreaseScore(m_amountRowClean);
+            StartCoroutine(DropBlocks(0.2f));
             return;
         }
-        StartCoroutine(DropBlocks(0.2f));
+        GameManager.Ins.GameOver();
+        enabled = false;
     }
+    
 }                                                              
                                                                
